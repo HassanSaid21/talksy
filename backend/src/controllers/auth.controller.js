@@ -45,9 +45,8 @@ export const signup = async (req, res) => {
         message: "User registered successfully",
       });
   } catch (error) {
-    return res.status(500).json({
-      message: `Error occurred while registering user: ${error.message}`,
-    });
+    console.error("Error registering user:", error);
+    return res.status(500).json({ message: "Internal Server error" });
   }
 };
 
@@ -85,12 +84,11 @@ export const login = async (req, res) => {
         user: { _id: user._id, name: user.name, email: user.email },
       });
   } catch (error) {
-    return res.status(500).json({
-      message: `Error occurred while logging in: ${error.message}`,
-    });
-  }
-};
+   console.error("Error registering user:", error);
+    return res.status(500).json({ message: "Internal Server error" })
+    };
 
+  }
 export const rotateRefreshToken = async (req, res) => {
 
 
@@ -132,8 +130,7 @@ export const rotateRefreshToken = async (req, res) => {
     .json({ accessToken });
 
   } catch (error) { 
-    return res.status(500).json({
-      message: `Error occurred while rotating refresh token: ${error.message}`,
-    });
+   console.error("Error registering user:", error);
+    return res.status(500).json({ message: "Internal Server error" });
   }
 };

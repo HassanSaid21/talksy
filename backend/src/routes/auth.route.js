@@ -3,7 +3,7 @@ import {
   login,
   rotateRefreshToken,
   signup,
-} from "../controllers/auth.controller";
+} from "../controllers/auth.controller.js";
 const router = express.Router();
 
 // @route   GET api/auth/login
