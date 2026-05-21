@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.route.js";
 import path from "path";
+import cookieParser from "cookie-parser";
 import { connectDB } from "./lib/db.js";
 
 const __dirname =  path.resolve();
@@ -11,7 +12,8 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }) );
+app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRoutes);
 
@@ -24,8 +26,15 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, async () => {
-  await connectDB();
-  console.log(`Server is running on port ${PORT}` );
-});
+ const startServer = async () => {
+   try {
+     await connectDB();
+     app.listen(PORT, () => {
+       console.log(`Server is running on port ${PORT}` );
+     });
+   } catch (error) {
+     console.error("Failed to start server:", error);
+     process.exit(1);
+   }
+ };
+ startServer();
