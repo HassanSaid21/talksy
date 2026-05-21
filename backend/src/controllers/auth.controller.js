@@ -9,7 +9,6 @@ import {
   createAuthTokens,
 } from "../services/auth.service.js";
 
-import { generateAccessToken } from "../utils/tokens.js";
 import { revokeRefreshToken } from "../services/auth.service.js";
 import { authenticateRefreshToken } from "../services/auth.service.js";
 
@@ -24,7 +23,7 @@ export const signup = async (req, res) => {
     const { error, user } = await createUser(req.body);
 
     if (error) {
-      return res.status(401).json({ message: error });
+      return res.status(400).json({ message: error });
     }
    // Generate access and refresh tokens, set the refresh token in an HTTP-only cookie, and return the access token in the response header
     const { accessToken, refreshToken } = await createAuthTokens(
@@ -46,9 +45,8 @@ export const signup = async (req, res) => {
         message: "User registered successfully",
       });
   } catch (error) {
-    return res.status(400).json({
-      message: error.message,
-      user: { _id: user._id, name: user.name, email: user.email },
+    return res.status(500).json({
+      message: `Error occurred while registering user: ${error.message}`,
     });
   }
 };
@@ -87,15 +85,18 @@ export const login = async (req, res) => {
         user: { _id: user._id, name: user.name, email: user.email },
       });
   } catch (error) {
-    return res.status(400).json({
-      message: error.message,
+    return res.status(500).json({
+      message: `Error occurred while logging in: ${error.message}`,
     });
   }
 };
 
 export const rotateRefreshToken = async (req, res) => {
+
+
   // This endpoint will handle refreshing the access token using the refresh token
 
+  try {
   // Get the refresh token from the request cookies
   const { refreshToken } = req.cookies;
   // If no refresh token is provided, return an error
@@ -118,11 +119,6 @@ export const rotateRefreshToken = async (req, res) => {
   // Update the refresh token in the database and set the new access token in the response cookies
   await revokeRefreshToken(tokenDoc, newRefreshToken);
 
-  const { accessToken, refreshToken } = await createAuthTokens(
-    tokenDoc.userId,
-    req,
-    res,
-  );
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -134,4 +130,10 @@ export const rotateRefreshToken = async (req, res) => {
     .status(200)
     .header("Authorization", `Bearer ${accessToken}`)
     .json({ accessToken });
+
+  } catch (error) { 
+    return res.status(500).json({
+      message: `Error occurred while rotating refresh token: ${error.message}`,
+    });
+  }
 };

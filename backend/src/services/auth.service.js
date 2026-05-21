@@ -1,9 +1,9 @@
-import RefreshToken from "../models/refreshToken.js";
+
 import { generateAccessToken, generateRefreshToken } from "../utils/tokens.js";
 import { hashToken } from "../utils/hash.js";
 import User from "../models/User.js";
 import { hashPassword, comparePassword } from "../utils/hash.js";
-
+import RefreshToken from "../models/RefreshToken.js";
 
 
 export const createUser = async ({ name, email, password }) => {
