@@ -8,7 +8,7 @@ import RefreshToken from "../models/RefreshToken.js";
 
 export const createUser = async ({ name, email, password }) => {
 
-  const existingUser = await User.findOne({ email }).lean();
+  const existingUser = await User.findOne({ email });
   const res = { error: null, user: null };
   if (existingUser) {
     res.error = "Email already in use";
@@ -28,7 +28,7 @@ export const createUser = async ({ name, email, password }) => {
 
 
 export const authenticateUser = async ({ email, password }) => {
-  const user = await User.findOne({ email }).lean();
+  const user = await User.findOne({ email });
   const res = { error: null, user: null };
   if (!user) {
     res.error = "Invalid email or password";
@@ -50,7 +50,7 @@ export const authenticateUser = async ({ email, password }) => {
 // Generate a new access token using a valid refresh token
 export const authenticateRefreshToken = async (rawToken) => {
   const hashedToken = await hashToken(rawToken);
-  const tokenDoc = await RefreshToken.findOne({ token: hashedToken }).lean();
+  const tokenDoc = await RefreshToken.findOne({ token: hashedToken });
   const res = { error: null, tokenDoc: null };
   if (!tokenDoc) {
     res.error = "Invalid refresh token";
@@ -75,11 +75,11 @@ export const createAuthTokens = async (userId, req, res) => {
   const rawRefreshToken = generateRefreshToken();
 
   const hashedRefreshToken = await hashToken(rawRefreshToken);
-
+  const REFRESH_TOKEN_TTL =30 * 24 * 60 * 60 * 1000;
   await RefreshToken.create({
     token: hashedRefreshToken,
     userId,
-    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL),
     deviceInfo: req.headers["user-agent"],
     ipAddress: req.ip,
   });
