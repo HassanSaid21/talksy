@@ -1,7 +1,10 @@
 export const buildWelcomeEmailTemplate = (name, url) => {
-  const safeName = name || "there";
-  const safeUrl = url || "#";
-
+  const escapeHtml = (value) =>
+    String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  const safeName = escapeHtml(name || "there");
+  const rawUrl = typeof url === "string" ? url : "";
+  const normalizedUrl = /^(https?:\/\/|\/)/i.test(rawUrl) ? rawUrl : "#";
+  const safeUrl = escapeHtml(normalizedUrl || "#");
   return `<!doctype html>
 <html lang="en">
   <head>
