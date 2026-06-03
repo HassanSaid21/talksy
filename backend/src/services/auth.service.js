@@ -93,4 +93,5 @@ export const createAuthTokens = async (userId, req, res) => {
 export const revokeRefreshToken = async (token, newToken) => {
   token.revoked = true;
   token.replacedByToken = newToken ? await hashToken(newToken) : null;
+  await token.save();
 };

@@ -40,12 +40,16 @@ export const signup = async (req, res) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    
-    await sendEmail(
-      user.email,
-      "Welcome to Our App",
-      buildWelcomeEmailTemplate(user.name, "https://localhost:3000/welcome"),
-    );
+     const appUrl = process.env.APP_URL ?? "http://localhost:3000";
+     try {
+       await sendEmail(
+         user.email,
+         "Welcome to Talksy",
+         buildWelcomeEmailTemplate(user.name, `${appUrl}/welcome`),
+       );
+     } catch (emailError) {
+       console.error("Failed to send welcome email:", emailError);
+     }
     return res.status(201).header("Authorization", `Bearer ${accessToken}`).json({
       message: "User registered successfully",
     });
@@ -116,8 +120,8 @@ export const rotateRefreshToken = async (req, res) => {
 
     // Update the refresh token in the database and set the new access token in the response cookies
     await revokeRefreshToken(tokenDoc, newRefreshToken);
-
-    res.cookie("refreshToken", refreshToken, {
+    
+    res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
