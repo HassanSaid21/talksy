@@ -1,6 +1,16 @@
 export const buildWelcomeEmailTemplate = (name, url) => {
   const escapeHtml = (value) =>
-    String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    String(value ?? "").replace(
+      /[&<>"']/g,
+      (ch) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[ch],
+    );
   const safeName = escapeHtml(name || "there");
   const rawUrl = typeof url === "string" ? url : "";
   const normalizedUrl = /^(https?:\/\/|\/)/i.test(rawUrl) ? rawUrl : "#";
@@ -27,7 +37,7 @@ export const buildWelcomeEmailTemplate = (name, url) => {
         align-items: center;
         justify-content: center;
       }
-      .logo svg { width: 30px; height: 30px; }
+      .logo svg { width: 30px; height: 30px; fill: #544646;   }
       .title { font-size: 22px; font-weight: 600; margin: 6px 0 0; }
       .content { padding: 24px 30px 30px; }
       .greeting { color: #3b5bdc; font-weight: 600; font-size: 16px; margin: 0 0 10px; }
@@ -47,8 +57,10 @@ export const buildWelcomeEmailTemplate = (name, url) => {
       <div class="card">
         <div class="header">
           <div class="logo">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-  <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  <path d="M4 4.5A2.5 2.5 0 016.5 2h11A2.5 2.5 0 0120 4.5v7A2.5 2.5 0 0117.5 14H9.7L6 17.7V14.5A2 2 0 014 12.5v-8z" opacity="0.98"/>
+  <circle cx="8.5" cy="8.5" r="1.2" fill="white" />
+  <circle cx="12" cy="8.5" r="1.2" fill="white" />
 </svg>
           </div>
           <div class="title">Welcome to Talksy!</div>
