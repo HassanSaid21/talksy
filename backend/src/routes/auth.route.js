@@ -3,6 +3,7 @@ import {
   login,
   rotateRefreshToken,
   signup,
+  logout ,
 } from "../controllers/auth.controller.js";
 const router = express.Router();
 
@@ -18,5 +19,7 @@ router.post("/login", login);
 router.post("/signup", signup);
 
 router.post("/refresh-token", rotateRefreshToken);
+
+router.post("/logout", logout);
 
 export default router;

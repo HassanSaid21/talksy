@@ -134,3 +134,25 @@ export const rotateRefreshToken = async (req, res) => {
     return res.status(500).json({ message: "Internal Server error" });
   }
 };
+
+
+export const logout = async (req, res) => { 
+  try {
+    const { refreshToken } = req.cookies;
+    if (refreshToken) {
+      const { error, tokenDoc } = await authenticateRefreshToken(refreshToken);
+      if (!error && tokenDoc) {
+        await revokeRefreshToken(tokenDoc, null);
+      }
+    }
+    res.clearCookie("refreshToken", { 
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    return res.status(200).json({ message: "Logout successful" });  
+  } catch (error) {
+    console.error("Error logging out:", error);
+    return res.status(500).json({ message: "Internal Server error" });
+  }
+};
