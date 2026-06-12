@@ -9,9 +9,11 @@ import {
   createAuthTokens,
   revokeRefreshToken,
   authenticateRefreshToken,
+  updateUserProfilePicture,
 } from "../services/auth.service.js";
 import { sendEmail } from "../services/email.service.js";
 import { buildWelcomeEmailTemplate } from "../emails/welcomeTemplate.js";
+import { uploadImageToCloudinary } from "../services/cloudinary-onboarding.js";
 
 export const signup = async (req, res) => {
   try {
@@ -21,7 +23,7 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: error });
     }
 
-    const { error : createUserError, user } = await createUser(req.body);
+    const { error: createUserError, user } = await createUser(req.body);
 
     if (createUserError) {
       return res.status(400).json({ message: createUserError });
@@ -40,19 +42,22 @@ export const signup = async (req, res) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-     const appUrl = process.env.APP_URL ?? "http://localhost:3000";
-     try {
-       await sendEmail(
-         user.email,
-         "Welcome to Talksy",
-         buildWelcomeEmailTemplate(user.name, `${appUrl}/welcome`),
-       );
-     } catch (emailError) {
-       console.error("Failed to send welcome email:", emailError);
-     }
-    return res.status(201).header("Authorization", `Bearer ${accessToken}`).json({
-      message: "User registered successfully",
-    });
+    const appUrl = process.env.APP_URL ?? "http://localhost:3000";
+    try {
+      await sendEmail(
+        user.email,
+        "Welcome to Talksy",
+        buildWelcomeEmailTemplate(user.name, `${appUrl}/welcome`),
+      );
+    } catch (emailError) {
+      console.error("Failed to send welcome email:", emailError);
+    }
+    return res
+      .status(201)
+      .header("Authorization", `Bearer ${accessToken}`)
+      .json({
+        message: "User registered successfully",
+      });
   } catch (error) {
     console.error("Error registering user:", error);
     return res.status(500).json({ message: "Internal Server error" });
@@ -67,7 +72,9 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: error });
     }
 
-    const { error : authenticateUserError, user } = await authenticateUser(req.body);
+    const { error: authenticateUserError, user } = await authenticateUser(
+      req.body,
+    );
 
     if (authenticateUserError) {
       return res.status(401).json({ message: authenticateUserError });
@@ -120,7 +127,7 @@ export const rotateRefreshToken = async (req, res) => {
 
     // Update the refresh token in the database and set the new access token in the response cookies
     await revokeRefreshToken(tokenDoc, newRefreshToken);
-    
+
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -138,3 +145,49 @@ export const rotateRefreshToken = async (req, res) => {
   }
 };
 
+export const logout = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (refreshToken) {
+      const { error, tokenDoc } = await authenticateRefreshToken(refreshToken);
+      if (!error && tokenDoc) {
+        await revokeRefreshToken(tokenDoc, null);
+      }
+    }
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    return res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.error("Error logging out:", error);
+    return res.status(500).json({ message: "Internal Server error" });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const profilePictureUrl = req.body.profilePictureUrl; // Assuming the new profile picture URL is sent in the request body
+    if (!profilePictureUrl) {
+      return res
+        .status(400)
+        .json({ message: "Profile picture URL is required" });
+    }
+    //  call a service function to update the user's profile in the database
+    const image = await uploadImageToCloudinary(
+      profilePictureUrl,
+      "/talksy/profile_pictures",
+    );
+
+    const updatedUser = await updateUserProfilePicture(
+      req.user._id,
+      image.secureUrl,
+    );
+
+    return res.status(200).json({ updatedUser });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return res.status(500).json({ message: "Internal Server error" });
+  }
+};
