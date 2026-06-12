@@ -25,6 +25,7 @@ router.post("/signup", signup);
 router.post("/refresh-token", rotateRefreshToken);
 
 // @route   POST api/auth/logout
+router.post("/logout", logout);
 
 router.put('/update-profile',  protect, updateProfile);
 
