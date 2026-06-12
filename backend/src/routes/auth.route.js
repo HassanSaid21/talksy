@@ -18,8 +18,9 @@ router.post("/login", login);
 // @access  Public
 router.post("/signup", signup);
 
+// @route   POST api/auth/refresh-token
 router.post("/refresh-token", rotateRefreshToken);
 
-router.post("/logout", logout);
+// @route   POST api/auth/logout
 
 export default router;

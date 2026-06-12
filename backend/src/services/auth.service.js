@@ -8,7 +8,7 @@ import RefreshToken from "../models/RefreshToken.js";
 
 export const createUser = async ({ name, email, password }) => {
 
-  const existingUser = await User.findOne({ email }).lean();
+  const existingUser = await User.findOne({ email });
   const res = { error: null, user: null };
   if (existingUser) {
     res.error = "Email already in use";
@@ -75,11 +75,11 @@ export const createAuthTokens = async (userId, req, res) => {
   const rawRefreshToken = generateRefreshToken();
 
   const hashedRefreshToken = await hashToken(rawRefreshToken);
-
+  const REFRESH_TOKEN_TTL =30 * 24 * 60 * 60 * 1000;
   await RefreshToken.create({
     token: hashedRefreshToken,
     userId,
-    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL),
     deviceInfo: req.headers["user-agent"],
     ipAddress: req.ip,
   });
@@ -93,4 +93,5 @@ export const createAuthTokens = async (userId, req, res) => {
 export const revokeRefreshToken = async (token, newToken) => {
   token.revoked = true;
   token.replacedByToken = newToken ? await hashToken(newToken) : null;
+  await token.save();
 };
