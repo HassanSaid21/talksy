@@ -28,7 +28,7 @@ export const createUser = async ({ name, email, password }) => {
 
 
 export const authenticateUser = async ({ email, password }) => {
-  const user = await User.findOne({ email }).lean();
+  const user = await User.findOne({ email });
   const res = { error: null, user: null };
   if (!user) {
     res.error = "Invalid email or password";
@@ -50,7 +50,7 @@ export const authenticateUser = async ({ email, password }) => {
 // Generate a new access token using a valid refresh token
 export const authenticateRefreshToken = async (rawToken) => {
   const hashedToken = await hashToken(rawToken);
-  const tokenDoc = await RefreshToken.findOne({ token: hashedToken }).lean();
+  const tokenDoc = await RefreshToken.findOne({ token: hashedToken });
   const res = { error: null, tokenDoc: null };
   if (!tokenDoc) {
     res.error = "Invalid refresh token";
