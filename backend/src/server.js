@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.route.js";
 import path from "path";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./lib/db.js";
+import { arcjetMiddleware } from "./middlewares/arcjet.middleware.js";
 
 const __dirname =  path.resolve();
 dotenv.config();
@@ -14,6 +15,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }) );
 app.use(cookieParser());
+app.use(arcjetMiddleware); // Apply Arcjet middleware globally to all routes. Adjust as needed for specific routes.
 // Routes
 
 app.use("/api/auth", authRoutes);

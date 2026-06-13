@@ -13,7 +13,9 @@ const router = express.Router();
 // @route   GET api/auth/login
 // @desc    Authenticate user and get token
 // @access  Public
-
+router.get("/login", (req, res, next)=>{
+  res.status(200).json({ message: "Login endpoint is working" });
+});
 router.post("/login", login);
 
 // @route   POST api/auth/register

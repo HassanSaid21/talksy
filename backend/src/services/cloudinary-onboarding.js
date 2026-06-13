@@ -13,6 +13,12 @@ cloudinary.config({
   secure: true,
 });
 
+if (!cloudName || !apiKey || !apiSecret) {
+  throw new Error(
+    "Missing required Cloudinary environment variables: CLOUDINARY_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET must be set"
+  );
+}
+
 const sampleImageUrl =
   "https://res.cloudinary.com/demo/image/upload/sample.jpg";
 

@@ -10,7 +10,7 @@ import {
   revokeRefreshToken,
   authenticateRefreshToken,
   updateUserProfilePicture,
-} from "../services/auth.service.js";
+} from "../services/auth-database.service.js";
 import { sendEmail } from "../services/email.service.js";
 import { buildWelcomeEmailTemplate } from "../emails/welcomeTemplate.js";
 import { uploadImageToCloudinary } from "../services/cloudinary-onboarding.js";
