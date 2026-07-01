@@ -5,7 +5,7 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./lib/db.js";
 import { arcjetMiddleware } from "./middlewares/arcjet.middleware.js";
-
+import messagesRoute from "./routes/messages.route.js";
 const __dirname =  path.resolve();
 dotenv.config();
 const app = express();
@@ -19,6 +19,7 @@ app.use(arcjetMiddleware); // Apply Arcjet middleware globally to all routes. Ad
 // Routes
 
 app.use("/api/auth", authRoutes);
+app.use("/api/messages", messagesRoute);
 
 
 // Serve static files from the React app in production
