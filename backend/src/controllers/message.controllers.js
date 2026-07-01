@@ -1,4 +1,5 @@
-import Message from "../models/message.js";
+import mongoose from "mongoose";
+import Message from "../models/Message.js";
 import { uploadImageToCloudinary } from "../services/cloudinary-onboarding.js";
 import { getUserConversations } from "../services/conversation.servise.js";
 import {  saveMessage , getMessagesBetweenUsers } from "../services/message-database.service.js";
@@ -14,9 +15,9 @@ export const getChats = async (req, res) => {
     const chats  = await getUserConversations(userId);
     
     if (chats.length === 0) {
-      res.status(404).json({ error: "No chats found" });
+     return res.status(404).json({ error: "No chats found" });
     }
-    res.status(200).json({ chats });
+   return res.status(200).json({ chats });
   } catch (error) {
     console.error("Error fetching messages:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -32,6 +33,10 @@ export const getMessages = async (req, res) => {
     }
     const contactId = req.params.id; // Assuming the contact ID is sent as a URL parameter
     if (!contactId) {
+      return res.status(400).json({ error: "Invalid contact ID" });
+
+    }
+    if (!mongoose.Types.ObjectId.isValid(contactId)) {
       return res.status(400).json({ error: "Contact ID is required" });
     }
 
@@ -39,7 +44,7 @@ export const getMessages = async (req, res) => {
     res.status(200).json({ messages });
   } catch (error) {
     console.error("Error fetching messages:", error);
-    res.status(500).json({ error: "Internal server error" });
+     res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -64,7 +69,8 @@ export const sendMessage = async (req, res) => {
         let imageUrl = null;
         if(image){
 
-            imageUrl  = uploadImageToCloudinary(image);
+            image  = awaituploadImageToCloudinary(image , "talksy-messages");
+            imageUrl = image.secureUrl;
           }
          
         await saveMessage(senderId, receiverId, text , imageUrl);

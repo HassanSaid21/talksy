@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import Message from "../models/message.js";
+
+import Message from "../models/Message.js";
 import { getOrCreateConversation } from "./conversation.servise.js";
 import Conversation from "../models/Conversation.js";
 
@@ -22,7 +22,7 @@ export const getMessagesBetweenUsers = async (userId, contactId) => {
         { senderId: contactId, receiverId: userId },
       ],
     })
-      .sort({ timestamp: 1 }) // Sort messages by timestamp in ascending order
+      .sort({ createdAt:-1 }) // Sort messages by timestamp in ascending order
       .limit(50); // Limit to the latest 50 messages for performance
     return messages;
   } catch (error) {
@@ -40,7 +40,6 @@ export const saveMessage = async (senderId, receiverId, text  , imageUrl ) => {
       receiverId,
       text,
       imageUrl,
-      timestamp: new Date(),
       conversationId: conversation._id,
     });
 
