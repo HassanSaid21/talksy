@@ -61,7 +61,7 @@ const sampleImageUrl =
 // });
 
 
-export const uploadImageToCloudinary = async (imageUrl, folder) => {
+export const uploadImageToCloudinary = async (imageUrl, folder="talksy-onboarding") => {
   try {
     const uploadedImage = await cloudinary.uploader.upload(imageUrl, {  
       folder: folder,

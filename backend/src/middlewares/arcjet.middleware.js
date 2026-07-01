@@ -12,7 +12,7 @@ export const arcjetMiddleware = async (req, res, next) => {
         res.status(403).json({ error: "No bots allowed" });
       } else {
         res.status(403).json({ error: "Forbidden" });
-        res.end(JSON.stringify({ error: "Forbidden" }));
+       
       }
     }
     // else if (decision.ip.isHosting()) {
