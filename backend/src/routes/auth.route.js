@@ -1,7 +1,7 @@
 import express from "express";
 import {
   login,
-  rotateRefreshToken,
+  rotateToken,
   signup,
   logout ,
   updateProfile
@@ -23,8 +23,8 @@ router.post("/login", login);
 // @access  Public
 router.post("/signup", signup);
 
-// @route   POST api/auth/refresh-token
-router.post("/refresh-token", rotateRefreshToken);
+// @route   POST api/auth/refresh
+router.post("/refresh", rotateToken);
 
 // @route   POST api/auth/logout
 router.post("/logout", logout);

@@ -11,6 +11,7 @@ import {
   authenticateRefreshToken,
   updateUserProfilePicture,
 } from "../services/auth-database.service.js";
+import { generateAccessToken } from "../utils/tokens.js";
 import { sendEmail } from "../services/email.service.js";
 import { buildWelcomeEmailTemplate } from "../emails/welcomeTemplate.js";
 import { uploadImageToCloudinary } from "../services/cloudinary-onboarding.js";
@@ -54,9 +55,10 @@ export const signup = async (req, res) => {
     }
     return res
       .status(201)
-      .header("Authorization", `Bearer ${accessToken}`)
       .json({
         message: "User registered successfully",
+        accessToken,
+        user: { _id: user._id, name: user.name, email: user.email },
       });
   } catch (error) {
     console.error("Error registering user:", error);
@@ -95,19 +97,19 @@ export const login = async (req, res) => {
 
     return res
       .status(200)
-      .header("Authorization", `Bearer ${accessToken}`)
       .json({
         message: "Login successful",
         user: { _id: user._id, name: user.name, email: user.email },
+        accessToken,
       });
   } catch (error) {
     console.error("Error  user login:", error);
     return res.status(500).json({ message: "Internal Server error" });
   }
 };
-export const rotateRefreshToken = async (req, res) => {
-  // This endpoint will handle refreshing the access token using the refresh token
 
+// This endpoint will handle refreshing the access token using the refresh token
+export const rotateToken = async (req, res) => {
   try {
     // Get the refresh token from the request cookies
     const { refreshToken } = req.cookies;
@@ -121,23 +123,11 @@ export const rotateRefreshToken = async (req, res) => {
     if (error) {
       return res.status(403).json({ message: error });
     }
-    // Generate a new access token and refresh token, save the new refresh token in the database, and return both tokens
-    const { accessToken, refreshToken: newRefreshToken } =
-      await createAuthTokens(tokenDoc.userId, req, res);
-
-    // Update the refresh token in the database and set the new access token in the response cookies
-    await revokeRefreshToken(tokenDoc, newRefreshToken);
-
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    // Generate a new access token
+    const accessToken = generateAccessToken(tokenDoc.userId);
 
     return res
       .status(200)
-      .header("Authorization", `Bearer ${accessToken}`)
       .json({ accessToken });
   } catch (error) {
     console.error("Error rotating refresh token:", error);
