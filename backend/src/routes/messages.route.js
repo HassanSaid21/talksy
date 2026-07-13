@@ -7,9 +7,11 @@ const router = express.Router();
 
 
 // router.get("/contacts", protect ,getContacts);    
-router.get('/chats',  protect, getChats);
-router.get('/:id', protect, getMessages);
-router.post('/send/:id', protect, sendMessage);
+
+router.get("/chats", protect, getChats);
+router.get("/:chatId", protect, getMessages);
+router.post("/message", protect, sendMessage);
+
   
 
 

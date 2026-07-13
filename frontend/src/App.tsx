@@ -1,40 +1,33 @@
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import { homePath, loginPath, signupPath } from "./paths";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AppBg from "./components/AppBg";
+import { Toaster } from "react-hot-toast";
+import { useAuthStore } from "./store/useAuthStore";
+
 
 export default function App() {
+    const {status} = useAuthStore();
   return (
-    <div className="min-h-screen bg-linear-to-tr from-black  via-sky-950 to-gray-950  relative overflow-hidden flex items-center justify-center p-4">
-      {/* Grid background (no glows) */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none ">
-        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-          <defs>
-            
-            <pattern id="smallGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M40 0H0V40" fill="none" stroke="rgba(203,213,225,0.12)" strokeWidth="0.8" shapeRendering="crispEdges" />
-            </pattern>
 
-         
-            <pattern id="largeGrid" width="50" height="50" patternUnits="userSpaceOnUse">
-              <path d="M200 0H0V200" fill="none" stroke="rgba(203,213,225,0.20)" strokeWidth="1.2" shapeRendering="crispEdges" />
-            </pattern>
-          </defs>
+    <AppBg>
 
-      
-          <rect width="100%" height="100%" fill="url(#smallGrid)" opacity="0.85" />
-          <rect width="100%" height="100%" fill="url(#largeGrid)" opacity="0.9" />
-
-         
-          <rect width="100%" height="100%" fill="black" opacity="0.02" />
-        </svg>
-      </div>
    <Routes>
+    //TODOS add public protrct route for settings profile and other pages that are not login or signup
+    <Route element={<ProtectedRoute />}>
+    
     <Route path={homePath()} element={<Home/>} />
-    <Route path={loginPath()} element={<Login/>} />
-    <Route path={signupPath()} element={<Signup/>} />
+    </Route>
+   
+    <Route path={loginPath()}  element={status === "unauthenticated" ? <Login /> : <Navigate to={"/"} />} />
+    <Route path={signupPath()}  element={status === "unauthenticated" ? <Signup /> : <Navigate to={"/"} />} />
    </Routes>
-    </div>
+   <Toaster/>
+  </AppBg>
+    
+   
   )
 }
