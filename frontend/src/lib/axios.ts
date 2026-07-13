@@ -40,13 +40,14 @@ AxiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await axios.post(
-          // i used axios.post instead of AxiosInstance.post to avoid triggering the interceptor again and causing an infinite loop. This way, the refresh token request is made directly without going through the interceptor.
-          //TODOS put the real application domain
-          "http://localhost:5000/api/auth/refresh",
-          {},
-          {
-            withCredentials: true,
+         const refreshUrl = `${AxiosInstance.defaults.baseURL}/auth/refresh`;
+         const response = await axios.post(
+           // i used axios.post instead of AxiosInstance.post to avoid triggering the interceptor again and causing an infinite loop. This way, the refresh token request is made directly without going through the interceptor.
+           //TODOS put the real application domain
+           refreshUrl,
+           {},
+           {
+             withCredentials: true,
           },
         );
 

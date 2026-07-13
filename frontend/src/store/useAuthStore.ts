@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { AuthStatus, LoginPayload, User ,  } from "./types";
+import type { AuthStatus, LoginPayload, User   } from "./types";
 
 
 
@@ -25,7 +25,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
 
   // App starts by checking whether a session exists
-  status: "authenticated",
+  status: "checking",
 
   login: ({ accessToken, user }) =>
     set({

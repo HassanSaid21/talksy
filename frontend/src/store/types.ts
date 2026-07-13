@@ -5,7 +5,7 @@ export type AuthStatus =
 
 export interface User {
   _id: string;
-  username: string;
+  name: string;
   email: string;
   // Add more fields as your API grows
 }

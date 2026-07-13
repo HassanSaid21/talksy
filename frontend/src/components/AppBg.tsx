@@ -1,6 +1,6 @@
+import type { ReactNode } from "react";
 
-
-export default function AppBg({ children }: { children: React.ReactNode }) {
+export default function AppBg({ children }: { children: ReactNode }) {
   return (
     
      <div className="  min-h-screen bg-linear-to-tr from-black  via-sky-950 to-gray-950  relative overflow-hidden flex items-center justify-center p-4">

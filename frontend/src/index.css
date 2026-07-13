@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@config "daisyui";
-/* stylelint-disable at-rule-no-unknown */
+
+@plugin "daisyui"
 
 
 

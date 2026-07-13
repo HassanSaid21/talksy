@@ -16,14 +16,14 @@ export default function App() {
     <AppBg>
 
    <Routes>
-    //TODOS add public protrct route for settings profile and other pages that are not login or signup
+    {/* //TODOS add public route for settings, profile, and other pages that are not login or signup */}
     <Route element={<ProtectedRoute />}>
     
     <Route path={homePath()} element={<Home/>} />
     </Route>
    
-    <Route path={loginPath()}  element={status === "unauthenticated" ? <Login /> : <Navigate to={"/"} />} />
-    <Route path={signupPath()}  element={status === "unauthenticated" ? <Signup /> : <Navigate to={"/"} />} />
+       <Route path={loginPath()} element={status === "authenticated" ? <Navigate to="/" /> : <Login />} />
+     <Route path={signupPath()} element={status === "authenticated" ? <Navigate to="/" /> : <Signup />} />
    </Routes>
    <Toaster/>
   </AppBg>
