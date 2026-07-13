@@ -12,6 +12,7 @@ import { Link, useNavigate } from "react-router";
 import type { AxiosError } from "axios";
 import BorderAnimatedContainer from "../components/BoarderAnimatedContainer";
 import { useAuthStore } from "../store/useAuthStore";
+import { loginPath } from "../paths";
 export default function Signup() {
   const [formData, setFormData] = useState({
     name: "",
@@ -130,7 +131,7 @@ export default function Signup() {
                 </form>
 
                 <div className="mt-6 text-center">
-                  <Link to="/login" className="auth-link">
+                  <Link to={loginPath()} className="auth-link">
                     Already have an account? Login
                   </Link>
                 </div>
