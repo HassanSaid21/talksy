@@ -36,11 +36,12 @@ AxiosInstance.interceptors.response.use(
     }
 
     // Prevent infinite retry loops
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 &&originalRequest.url !=='/auth/login' && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
          const refreshUrl = `${AxiosInstance.defaults.baseURL}/auth/refresh`;
+         console.log(AxiosInstance.defaults.baseURL)
          const response = await axios.post(
            // i used axios.post instead of AxiosInstance.post to avoid triggering the interceptor again and causing an infinite loop. This way, the refresh token request is made directly without going through the interceptor.
            //TODOS put the real application domain

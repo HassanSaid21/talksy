@@ -1,36 +1,35 @@
+
 import {
   LoaderIcon,
   LockIcon,
   MailIcon,
   MessageCircleIcon,
 } from "lucide-react";
-import { useState, type SubmitEvent } from "react";
+import { useState , type SubmitEvent} from "react"
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
 import type { AxiosError } from "axios";
 import BorderAnimatedContainer from "../components/BoarderAnimatedContainer";
 import { useAuthStore } from "../store/useAuthStore";
 import { signupPath } from "../paths";
-import axios from "axios";
+// import axios from "axios";
+import { AxiosInstance } from "../lib/axios";
 
 export default function Login() {
   const [formData, setFormData] = useState({
-    email: "",
+      email: "",
     password: "",
   });
-  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuthStore();
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsSigningUp(true);
+    setIsLoggingIn(true);
     // Handle form submission logic here
     try {
       //TODOS: put the real application domain
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        formData,
-      );
+      const res = await AxiosInstance.post("/auth/login", formData);
       login({ accessToken: res.data.accessToken, user: res.data.user });
 
       toast.success("Logged in successfully");
@@ -40,7 +39,7 @@ export default function Login() {
         ?.data || { message: "An error occurred" };
       toast.error(errorMessage.message || "An error occurred");
     } finally {
-      setIsSigningUp(false);
+      setIsLoggingIn(false);
     }
   }
   return (
@@ -48,7 +47,7 @@ export default function Login() {
       <div className="relative  w-full h-full ">
         <BorderAnimatedContainer>
           <div className="w-full flex flex-col lg:flex-row">
-            {/* FORM CLOUMN - LEFT SIDE */}
+            {/* FORM COLUMN - LEFT SIDE */}
             <div className="lg:w-1/2 p-2 flex items-center justify-center lg:border-r border-slate-600/30">
               <div className="w-full max-w-md">
                 {/* HEADING TEXT */}
@@ -57,23 +56,20 @@ export default function Login() {
                   <h2 className="text-2xl font-bold text-slate-200 mb-2">
                     Log in to Your Account
                   </h2>
-                  <p className="text-slate-400">
-                    Sign in to access your account
-                  </p>
+                  <p className="text-slate-400">Sign in to access your  account</p>
                 </div>
 
                 {/* FORM */}
                 <form onSubmit={handleSubmit} className="space-y-6">
+              
                   {/* EMAIL INPUT */}
                   <div>
-                    <label htmlFor="email" className="auth-input-label">
-                      Email
-                    </label>
+                    <label htmlFor="email" className="auth-input-label">Email</label>
                     <div className="relative">
                       <MailIcon className="auth-input-icon" />
 
                       <input
-                        id="email"
+                        id='email'
                         type="email"
                         value={formData.email}
                         onChange={(e) =>
@@ -87,14 +83,12 @@ export default function Login() {
 
                   {/* PASSWORD INPUT */}
                   <div>
-                    <label htmlFor="password" className="auth-input-label">
-                      Password
-                    </label>
+                    <label htmlFor="password" className="auth-input-label">Password</label>
                     <div className="relative">
                       <LockIcon className="auth-input-icon" />
 
                       <input
-                        id="password"
+                        id='password'
                         type="password"
                         value={formData.password}
                         onChange={(e) =>
@@ -110,9 +104,9 @@ export default function Login() {
                   <button
                     className="auth-btn"
                     type="submit"
-                    disabled={isSigningUp}
+                    disabled={isLoggingIn}
                   >
-                    {isSigningUp ? (
+                    {isLoggingIn ? (
                       <LoaderIcon className="w-full h-5 animate-spin text-center" />
                     ) : (
                       "Log in"
@@ -138,7 +132,7 @@ export default function Login() {
                 />
                 <div className="mt-6 text-center">
                   <h3 className="text-xl font-medium text-cyan-400">
-                    Connect any time , any where
+                      Connect anytime , anywhere
                   </h3>
 
                   <div className="mt-4 flex justify-center gap-4">
