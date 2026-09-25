@@ -17,7 +17,7 @@ export interface ChatsStore {
 
   activeTab: string;
 
-  selectedContact: User | null;
+  selectedContact: Contact | null;
 
   isLoadingContacts: boolean;
   isLoadingChats: boolean;
@@ -29,7 +29,7 @@ export interface ChatsStore {
 
   setActiveTab: (tab: string) => void;
 
-  setSelectedContact: (contact: User | null) => void;
+  setSelectedContact: (contact: Contact | null) => void;
 
   getAllContacts: () => Promise<void>;
 
