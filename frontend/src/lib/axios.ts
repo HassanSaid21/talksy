@@ -77,3 +77,15 @@ AxiosInstance.interceptors.response.use(
     return Promise.reject(error); // If the error is not a 401 or if the retry fails, reject the promise
   },
 );
+
+
+
+export async function updateUser(profileData: { profilePicUrl: string }) {
+  try {
+    const response = await AxiosInstance.put("/auth/update-profile", profileData);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to update profile:", error);
+    throw error;
+  }
+}

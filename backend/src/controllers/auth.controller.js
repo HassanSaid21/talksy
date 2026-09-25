@@ -11,7 +11,6 @@ import {
   authenticateRefreshToken,
   updateUserProfilePicture,
 } from "../services/auth-database.service.js";
-import { generateAccessToken } from "../utils/tokens.js";
 import { sendEmail } from "../services/email.service.js";
 import { buildWelcomeEmailTemplate } from "../emails/welcomeTemplate.js";
 import { uploadImageToCloudinary } from "../services/cloudinary-onboarding.js";
@@ -123,8 +122,18 @@ export const rotateToken = async (req, res) => {
     if (error) {
       return res.status(403).json({ message: error });
     }
-    // Generate a new access token
-    const accessToken = generateAccessToken(tokenDoc.userId);
+    const { accessToken, refreshToken: newRefreshToken } = await createAuthTokens(
+      tokenDoc.userId,
+      req,
+      res,
+    );
+    await revokeRefreshToken(tokenDoc, newRefreshToken);
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
 
     return res
       .status(200)
@@ -158,26 +167,37 @@ export const logout = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const profilePictureUrl = req.body.profilePictureUrl; // Assuming the new profile picture URL is sent in the request body
-    if (!profilePictureUrl) {
+    const { profilePicUrl } = req.body ?? {};
+    if (!profilePicUrl) {
       return res
         .status(400)
         .json({ message: "Profile picture URL is required" });
     }
-    //  call a service function to update the user's profile in the database
+    if (
+      typeof profilePicUrl !== "string" ||
+      !/^data:image\/(png|jpe?g|webp|gif);base64,/.test(profilePicUrl) ||
+      Buffer.byteLength(profilePicUrl, "utf8") > 4 * 1024 * 1024
+    ) {
+      return res.status(400).json({
+        message: "Profile picture must be a supported image under 3 MB",
+      });
+    }
+
     const image = await uploadImageToCloudinary(
-      profilePictureUrl,
-      "/talksy/profile_pictures",
+      profilePicUrl,
+      "talksy/profile_pictures",
     );
 
     const updatedUser = await updateUserProfilePicture(
       req.user._id,
       image.secureUrl,
     );
-
-    return res.status(200).json({ updatedUser });
+    return res.status(200).json({ user: updatedUser });
   } catch (error) {
     console.error("Error updating profile:", error);
+    if (error.message === "Image uploads are not configured") {
+      return res.status(503).json({ message: error.message });
+    }
     return res.status(500).json({ message: "Internal Server error" });
   }
 };

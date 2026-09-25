@@ -5,7 +5,9 @@ import { hashPassword, comparePassword } from "../utils/hash.js";
 import RefreshToken from "../models/RefreshToken.js";
 
 export const createUser = async ({ name, email, password }) => {
-  try{const existingUser = await User.findOne({ email });
+  try {
+  const normalizedEmail = email.trim().toLowerCase();
+  const existingUser = await User.findOne({ email: normalizedEmail });
   const res = { error: null, user: null };
   if (existingUser) {
     res.error = "Email already in use";
@@ -16,12 +18,15 @@ export const createUser = async ({ name, email, password }) => {
 
   const user = await User.create({
     name,
-    email,
+    email: normalizedEmail,
     password: hashedPassword,
   });
   res.user = user;
-  return res;}
-  catch(error){
+  return res;
+  } catch(error){
+    if (error.code === 11000) {
+      return { error: "Email already in use", user: null };
+    }
     console.error("Error creating user:", error);
     throw error;
   }
@@ -29,7 +34,7 @@ export const createUser = async ({ name, email, password }) => {
 
 export const authenticateUser = async ({ email, password }) => {
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
     const res = { error: null, user: null };
     if (!user) {
       res.error = "Invalid email or password";
@@ -55,7 +60,7 @@ export const authenticateUser = async ({ email, password }) => {
 // Generate a new access token using a valid refresh token
 export const authenticateRefreshToken = async (rawToken) => {
   try {
-    const hashedToken = await hashToken(rawToken);
+    const hashedToken = hashToken(rawToken);
     const tokenDoc = await RefreshToken.findOne({ token: hashedToken });
     const res = { error: null, tokenDoc: null };
     if (!tokenDoc) {
@@ -85,7 +90,7 @@ export const createAuthTokens = async (userId, req, res) => {
 
     const rawRefreshToken = generateRefreshToken();
 
-    const hashedRefreshToken = await hashToken(rawRefreshToken);
+    const hashedRefreshToken = hashToken(rawRefreshToken);
     const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 * 1000;
     await RefreshToken.create({
       token: hashedRefreshToken,
@@ -108,7 +113,7 @@ export const createAuthTokens = async (userId, req, res) => {
 export const revokeRefreshToken = async (token, newToken) => {
   try {
     token.revoked = true;
-    token.replacedByToken = newToken ? await hashToken(newToken) : null;
+    token.replacedByToken = newToken ? hashToken(newToken) : null;
     await token.save();
   } catch (error) {
     console.error("Error revoking refresh token:", error);
@@ -122,7 +127,7 @@ export const updateUserProfilePicture = async (userId, profilePictureUrl) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { profilePicture: profilePictureUrl },
-      { new: true },
+      { returnDocument: "after" },
     ).select("-password");
     return updatedUser;
   } catch (error) {

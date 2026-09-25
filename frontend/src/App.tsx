@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router";
-import { homePath, loginPath, signupPath } from "./paths";
+import { homePath, loginPath, signupPath, profilePath } from "./paths";
+import Profile from "./pages/Profile";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -9,8 +10,10 @@ import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/useAuthStore";
 
 
+
 export default function App() {
     const {status} = useAuthStore();
+
   return (
 
     <AppBg>
@@ -18,8 +21,8 @@ export default function App() {
    <Routes>
     {/* //TODOS add public route for settings, profile, and other pages that are not login or signup */}
     <Route element={<ProtectedRoute />}>
-    
     <Route path={homePath()} element={<Home/>} />
+    <Route path={profilePath()} element={<Profile/>} />
     </Route>
    
        <Route path={loginPath()} element={status === "authenticated" ? <Navigate to="/" /> : <Login />} />
