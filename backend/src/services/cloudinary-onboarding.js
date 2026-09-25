@@ -1,23 +1,30 @@
-#!/usr/bin/env node
 
 import { v2 as cloudinary } from "cloudinary";
 
-const cloudName = process.env.CLOUDINARY_NAME;
-const apiKey = process.env.CLOUDINARY_API_KEY;
-const apiSecret = process.env.CLOUDINARY_API_SECRET;
+const configureCloudinary = () => {
+  // Read configuration at request time. Static imports are evaluated before
+  // server.js calls dotenv.config(), so reading these at module load makes them
+  // appear undefined even when backend/.env is present.
+  const cloudName = (
+    process.env.CLOUDINARY_CLOUD_NAME ?? process.env.CLOUDINARY_NAME
+  )?.trim();
+  const apiKey = process.env.CLOUDINARY_API_KEY
+    ?.trim();
+  const apiSecret = process.env.CLOUDINARY_API_SECRET
+    ?.trim();
 
-cloudinary.config({
-  cloud_name: cloudName,
-  api_key: apiKey,
-  api_secret: apiSecret,
-  secure: true,
-});
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error("Image uploads are not configured");
+  }
 
-if (!cloudName || !apiKey || !apiSecret) {
-  throw new Error(
-    "Missing required Cloudinary environment variables: CLOUDINARY_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET must be set"
-  );
-}
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    secure: true,
+  });
+};
+
 
 const sampleImageUrl =
   "https://res.cloudinary.com/demo/image/upload/sample.jpg";
@@ -63,6 +70,13 @@ const sampleImageUrl =
 
 export const uploadImageToCloudinary = async (imageUrl, folder="talksy-onboarding") => {
   try {
+    configureCloudinary();
+    if (
+      typeof imageUrl !== "string" ||
+      !/^data:image\/(png|jpe?g|webp|gif);base64,/.test(imageUrl)
+    ) {
+      throw new Error("Only base64-encoded image uploads are allowed");
+    }
     const uploadedImage = await cloudinary.uploader.upload(imageUrl, {  
       folder: folder,
       resource_type: "image",

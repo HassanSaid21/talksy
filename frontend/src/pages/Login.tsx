@@ -33,7 +33,7 @@ export default function Login() {
       login({ accessToken: res.data.accessToken, user: res.data.user });
 
       toast.success("Logged in successfully");
-      navigate("/");
+      navigate("/" , { replace: true });
     } catch (error) {
       const errorMessage: { message?: string } = (error as AxiosError).response
         ?.data || { message: "An error occurred" };

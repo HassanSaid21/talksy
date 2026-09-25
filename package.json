@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/HassanSaid21/talksy#readme"
   ,"engines": {
-    "node": ">=22 <23"
+    "node": ">=22 <=23"
   }
 }

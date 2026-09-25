@@ -1,13 +1,4 @@
-import { Resend } from 'resend';
- import dotenv from 'dotenv';
-
-dotenv.config();
-// The API key must be stored in an environment variable called RESEND_API_KEY.
- const resendApiKey = process.env.RESEND_API_KEY;
- if (!resendApiKey) {
-   throw new Error("RESEND_API_KEY environment variable is required to send emails");
- }
- const resend = new Resend(resendApiKey);
+import { Resend } from "resend";
 
 /**
  * Send an email using Resend
@@ -19,6 +10,11 @@ dotenv.config();
  */
 
 export const sendEmail = async (to, subject, html, idempotencyKey = undefined) => {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("Email delivery is not configured");
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
   // Use a verified domain in production. 
   // 'onboarding@resend.dev' and 'delivered@resend.dev' can be used for testing.
   const fromEmail = process.env.NODE_ENV === 'development'   //todo// Replace with your verified domain in production

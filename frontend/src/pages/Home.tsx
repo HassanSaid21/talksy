@@ -1,31 +1,36 @@
-// import { useEffect } from "react"
-// import { AxiosInstance } from "../lib/axios";
-// import type { AxiosError } from "axios";
-// import { useAuthStore } from "../store/useAuthStore";
+import ProfileHeader from "../components/ProfileHeader";
+import ActiveTabSwitch from "../components/ActiveTabSwitch";
 
 
-  
 
-export default function Home() {
-  // const { accessToken , user } = useAuthStore();
-  // console.log("Access Token:", accessToken , "User:", user);
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await AxiosInstance.get("/messages/chats");
-  //       console.log("Protected data:", response.data);
-  //     } catch (error:unknown) { 
-  //       const errorMessage: { message?: string }  = (error as AxiosError).response?.data || { message: "An error occurred" };
-  //       console.log("Error fetching protected data:", errorMessage.message) ;
-  //     }
-  //   };
-    
-  
-  // fetchData();
-  // }
-  // , []);
-  
+import { useChatsStore } from "../store/useChatsStore";
+import ChatsList from "../components/ChatsList";
+import ContactList from "../components/ContactList";
+import ChatContainer from "../components/ChatContainer";
+import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
+
+function Home() {
+  const { activeTab , selectedContact } = useChatsStore();
+
   return (
-    <button className='btn btn-primary'>home</button>
-  )
+    <div className="relative w-[90%] min-h-160 flex ">
+     
+        {/* LEFT SIDE */}
+        <div className="w-80 bg-slate-800/50 backdrop-blur-sm flex flex-col">
+          <ProfileHeader/>
+          <ActiveTabSwitch />
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {activeTab === "chats" ? <ChatsList /> : <ContactList />}
+          </div>
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="flex-1 flex flex-col bg-slate-900/50 backdrop-blur-sm">
+          {selectedContact ? <ChatContainer /> : <NoConversationPlaceholder/>}
+        </div>
+      
+    </div>
+  );
 }
+export default Home;

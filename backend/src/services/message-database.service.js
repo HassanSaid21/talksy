@@ -22,9 +22,9 @@ export const getMessagesBetweenUsers = async (userId, contactId) => {
         { senderId: contactId, receiverId: userId },
       ],
     })
-      .sort({ createdAt:-1 }) // Sort messages by timestamp in ascending order
+      .sort({ createdAt: -1 })
       .limit(50); // Limit to the latest 50 messages for performance
-    return messages;
+    return messages.reverse();
   } catch (error) {
     console.error("Error fetching messages between users:", error);
     throw error;

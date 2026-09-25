@@ -7,11 +7,11 @@ export const arcjetMiddleware = async (req, res, next) => {
 
     if (decision.isDenied()) {
       if (decision.reason.isRateLimit()) {
-        res.status(429).json({ error: "Too many requests" });
+        return res.status(429).json({ error: "Too many requests" });
       } else if (decision.reason.isBot()) {
-        res.status(403).json({ error: "No bots allowed" });
+        return res.status(403).json({ error: "No bots allowed" });
       } else {
-        res.status(403).json({ error: "Forbidden" });
+        return res.status(403).json({ error: "Forbidden" });
        
       }
     }
@@ -27,12 +27,12 @@ export const arcjetMiddleware = async (req, res, next) => {
       // Verification isn't always possible, so we recommend checking the decision
       // separately.
       // https://docs.arcjet.com/bot-protection/reference#bot-verification
-      res.status(403).json({ message: "Spoofed bot detected" });
+      return res.status(403).json({ message: "Spoofed bot detected" });
     } else {
       next();
     }
   } catch (error) {
     console.error("Error in Arcjet middleware:", error);
-    throw error;
+    next(error);
   }
 };

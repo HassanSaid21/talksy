@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import type { AuthStatus, LoginPayload, User   } from "./types";
-
+import { persist } from "zustand/middleware";
+import { AxiosInstance } from "../lib/axios";
+import toast from "react-hot-toast";
 
 
 
@@ -18,14 +20,17 @@ interface AuthStore {
   setUser: (user: User | null) => void;
 
   setStatus: (status: AuthStatus) => void;
+  updateProfile: (profileData: { profilePicUrl: string }) => Promise<void>;
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
+export const useAuthStore = create<AuthStore>() (
+  persist(
+    (set) => ({
   accessToken: null,
   user: null,
 
   // App starts by checking whether a session exists
-  status: "checking",
+  status: "unauthenticated",
 
   login: ({ accessToken, user }) =>
     set({
@@ -56,4 +61,31 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({
       status,
     }),
-}));
+
+    updateProfile: async (profileData: { profilePicUrl: string }) => {
+      try {
+        const response = await AxiosInstance.put("/auth/update-profile", profileData);
+        set((state) => ({
+          user: {
+            ...state.user,
+            profilePicture: response.data.user.profilePicture,
+          } as User,
+        }));
+        toast.success("Profile updated successfully");
+      } catch (error) {
+        console.error("Failed to update profile:", error);
+        toast.error("Failed to update profile");
+        throw error;
+      }
+    },
+
+
+    }),
+   
+{
+      name: "auth-storage", // key in localStorage
+      partialize:(state)=>({
+ user:state.user,
+ status:state.status
+})
+    }));
